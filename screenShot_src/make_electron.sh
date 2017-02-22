@@ -7,4 +7,4 @@ node-gyp rebuild --target=1.4.15 --arch=x64 --dist-url=https://atom.io/download/
 
 ./link.sh
 
-cp build/Release/qt.node ~/work/electron/electron-quick-start/
+cp build/Release/screencapture.node ~/work/electron/electron-quick-start/

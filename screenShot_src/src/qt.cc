@@ -21,4 +21,4 @@ void Initialize(Handle<Object> target) {
   //QMainWindowWrap::Initialize(target);
 }
 
-NODE_MODULE(qt, Initialize)
+NODE_MODULE(screencapture, Initialize)

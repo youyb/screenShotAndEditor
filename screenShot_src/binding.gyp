@@ -1,7 +1,7 @@
 {
   'targets': [
     {
-      'target_name': 'qt',
+      'target_name': 'screencapture',
       'sources': [
         'src/qt.cc',
         'src/QtGui/qapplication.cc',
@@ -106,7 +106,7 @@
     {
       'target_name': 'copy_binary',
       'type': 'none',
-      'dependencies': ['qt'],
+      'dependencies': ['screencapture'],
       'conditions': [
         ['OS=="win"', {
           'copies':

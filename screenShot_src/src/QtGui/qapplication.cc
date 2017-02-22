@@ -38,7 +38,7 @@ void QApplicationWrap::Initialize(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(tpl, "screenCapture", ScreenCapture);
 
     constructor.Reset(isolate, tpl->GetFunction());
-    target->Set(String::NewFromUtf8(isolate, "MyQApp"), tpl->GetFunction());
+    target->Set(String::NewFromUtf8(isolate, "Main"), tpl->GetFunction());
 }
 
 void QApplicationWrap::New(const FunctionCallbackInfo<Value>& args) {
@@ -49,7 +49,7 @@ void QApplicationWrap::New(const FunctionCallbackInfo<Value>& args) {
         args.GetReturnValue().Set(args.This());
     } else {
         const int argc = 1;
-        Local<Value> argv[argc] = { };
+        Local<Value> argv[argc] = { args[0] };
         Local<Context> context = isolate->GetCurrentContext();
         Local<Function> cons = Local<Function>::New(isolate, constructor);
         Local<Object> instance = cons->NewInstance(context, argc, argv).ToLocalChecked();
@@ -86,13 +86,14 @@ void QApplicationWrap::ScreenCapture(const FunctionCallbackInfo<Value>& args) {
     QApplicationWrap* w = ObjectWrap::Unwrap<QApplicationWrap>(args.This());
     QApplication* q = w->GetWrapped();
 
+    QDBG<<"args.Length: "<<args.Length();
     QString imgDir;
-    if( (args.Length() == 1) && args[0]->IsString() ) {
+    if( (args.Length() == 2) && args[0]->IsString() ) {
         String::Utf8Value arg(args[0]->ToString());
         imgDir = QString::fromStdString(*arg);
 		QDBG<<"imgDir: "<<imgDir.toStdString().c_str();
     }
-	
+
     QPixmap image = q->primaryScreen()->grabWindow(q->desktop()->winId());
     double dpr = QApplication::desktop()->devicePixelRatio();
 	QDBG<<"dpr: "<<dpr;
@@ -116,4 +117,16 @@ void QApplicationWrap::ScreenCapture(const FunctionCallbackInfo<Value>& args) {
 	QDBG<<"g_ImagePath: "<<g_ImagePath.toStdString().c_str();
     args.GetReturnValue().Set(String::NewFromUtf8(isolate, g_ImagePath.toStdString().data()));
 
+    if( (args.Length() == 2) && !g_ImagePath.isEmpty() )
+    {
+        QDBG<<"sc finished, run js cb.";
+        Local<Function> cb = Local<Function>::Cast(args[1]);
+        const unsigned argc = 1;
+        Local<Value> argv[argc] = { String::NewFromUtf8(isolate, "SC Finished.") };
+        cb->Call(Null(isolate), argc, argv);
+    }
+    else
+    {
+        QDBG<<"sc cancel, just exit.";
+    }
 }
