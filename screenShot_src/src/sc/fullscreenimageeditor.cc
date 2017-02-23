@@ -10,6 +10,7 @@
 #include <QBitmap>
 #include "penpaintingstep.h"
 #include "rectpaintingstep.h"
+#include "textpaintingstep.h"
 #include "arrowpaintingstep.h"
 #include "ovalpaintingstep.h"
 #include "mosaicpaintingstep.h"
@@ -17,6 +18,9 @@
 QString g_ImagePath;
 QString g_ImageDir;
 double g_dpr;
+int g_count = 0;
+int g_x = -100;
+int g_y = -100;
 
 FullScreenImageEditor::FullScreenImageEditor(QPixmap &image, QString imgDir, double dpr, QWidget *parent) :
     QMainWindow(parent),
@@ -36,6 +40,14 @@ FullScreenImageEditor::FullScreenImageEditor(QPixmap &image, QString imgDir, dou
     currentPen = QPen(QColor(200,0,0,255));
     currentPen.setWidth(PenWidth::PEN_NORMAL);
     mosaicSize = MosaicSize::MOSAIC_NORMAL;
+
+    textEdit = new QTextEdit(this);
+    textEdit->setObjectName(QStringLiteral("textEdit"));
+    textEdit->setGeometry(QRect(-100, -100, 70, 31));
+    textEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    textEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    textEdit->setVisible(false);
+
 //    setAttribute(Qt::WA_DeleteOnClose);
 //    setMouseTracking(true);
 //    centralWidget()->setMouseTracking(true);
@@ -47,7 +59,6 @@ FullScreenImageEditor::FullScreenImageEditor(QPixmap &image, QString imgDir, dou
         if ((*iter)->inherits("QPushButton"))
             connect(*iter, SIGNAL(clicked()), this, SLOT(on_color_picked()));
     }
-
 }
 
 FullScreenImageEditor::~FullScreenImageEditor()
@@ -238,6 +249,40 @@ void FullScreenImageEditor::mousePressEvent(QMouseEvent *e)
                     paintingHistory.doStep(rectStep);
                     break;
                 }
+                case PaintingMode::TEXT: {
+                    QDBG<<"TEXT: "<<g_count;
+                    g_count++;
+                    QString str;
+                    if(g_count == 1) //first click
+                    {
+                        textEdit->setGeometry(QRect(e->pos().x(), e->pos().y(), 70, 31));
+                        textEdit->setVisible(true);
+                        textEdit->setStyleSheet("background-color: rgb(255, 255, 255, 60);");
+                        textEdit->setStyleSheet("border: 1px solid red;");
+                        textEdit->setFocus();
+                        g_x = e->pos().x();
+                        g_y = e->pos().y();
+                    }
+                    else if(g_count == 2) //second click
+                    {
+                        str = textEdit->toPlainText();
+                        QDBG<<str.toStdString().data();
+                        TextPaintingStep *textStep = new TextPaintingStep(str);
+                        textStep->setPen(currentPen);
+                        textStep->setFirstPoint(g_x, g_y);
+                        paintingHistory.doStep(textStep);
+
+                        textEdit->setVisible(false);
+                        textEdit->clearFocus();
+                        textEdit->clear();
+                        g_count = 0;
+                    }
+                    else
+                    {
+                        QDBG<<"other";
+                    }
+                    break;
+                }
                 case PaintingMode::ARROW: {
                     ArrowPaintingStep *arrowStep = new ArrowPaintingStep;
                     arrowStep->setPen(currentPen);
@@ -268,6 +313,12 @@ void FullScreenImageEditor::mousePressEvent(QMouseEvent *e)
             if (!paintingStarted) {         // painting will not be interupted when performing painting
                 setCanvasMode(CanvasMode::IDLE);
                 this->update();
+                textEdit->setVisible(false);
+                textEdit->clear();
+                textEdit->clearFocus();
+                g_count = 0;
+                g_x = -100;
+                g_y = -100;
             }
         }
     }
@@ -306,6 +357,9 @@ void FullScreenImageEditor::updateDrawing(QMouseEvent *e)
         break;
     case PaintingMode::RECT:
         dynamic_cast<RectPaintingStep *>((paintingHistory.peekStep()))->setSecondPoint(limitPointInSelectedArea(e->x(), e->y()));
+        break;
+    case PaintingMode::TEXT:
+//        dynamic_cast<TextPaintingStep *>((paintingHistory.peekStep()))->setSecondPoint(limitPointInSelectedArea(e->x(), e->y()));
         break;
     case PaintingMode::ARROW:
         dynamic_cast<ArrowPaintingStep *>((paintingHistory.peekStep()))->setSecondPoint(limitPointInSelectedArea(e->x(), e->y()));
@@ -640,7 +694,7 @@ void FullScreenImageEditor::on_penButton_clicked()
 
 void FullScreenImageEditor::on_undoButton_clicked()
 {
-    if (!paintingHistory.undoStep()) {\
+    if (!paintingHistory.undoStep()) {
         setCanvasMode(CanvasMode::IDLE);
     }
     this->update();
@@ -656,6 +710,12 @@ void FullScreenImageEditor::on_rectButton_clicked()
 {
     setCanvasMode(CanvasMode::PAINTING);
     paintingMode = PaintingMode::RECT;
+}
+
+void FullScreenImageEditor::on_textButton_clicked()
+{
+    setCanvasMode(CanvasMode::PAINTING);
+    paintingMode = PaintingMode::TEXT;
 }
 
 void FullScreenImageEditor::on_arrowButton_clicked()

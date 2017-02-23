@@ -6,6 +6,7 @@
 #include <QRect>
 #include <QPixmap>
 #include <QPainter>
+#include <QTextEdit>
 #include "paintinghistory.h"
 
 namespace Ui {
@@ -28,7 +29,8 @@ enum PaintingMode {
     OVAL,
     ARROW,
     RECT,
-    MOSAIC
+    MOSAIC,
+    TEXT
 };
 
 enum MousePosition {
@@ -63,6 +65,9 @@ enum MyCursor {
 extern QString g_ImagePath;
 extern QString g_ImageDir;
 extern double g_dpr;
+extern int g_count;
+extern int g_x;
+extern int g_y;
 class FullScreenImageEditor : public QMainWindow
 {
     Q_OBJECT
@@ -94,10 +99,11 @@ private slots:
 
     void on_rectButton_clicked();
 
+    void on_textButton_clicked();
+
     void on_arrowButton_clicked();
 
     void on_color_picked();
-
 
     void on_colorButton_clicked();
 
@@ -137,6 +143,7 @@ private:
     int originalSelectLeft;
     int originalSelectTop;
     PaintingHistory paintingHistory;
+    QTextEdit *textEdit;
 
     CanvasMode getCanvasMode();
 
