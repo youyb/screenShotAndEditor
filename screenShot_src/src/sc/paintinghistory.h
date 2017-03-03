@@ -13,6 +13,7 @@ public:
     ~PaintingHistory() {
         for (QStack<IPaintingStep *>::Iterator iter = history.begin(); iter != history.end(); ++iter) {
             delete (*iter);
+            QDBG<<"delete stack data...";
         }
     }
 

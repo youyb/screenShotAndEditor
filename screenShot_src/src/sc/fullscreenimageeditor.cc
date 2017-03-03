@@ -17,19 +17,20 @@
 
 QString g_ImagePath;
 QString g_ImageDir;
+QString g_IconDir;
 double g_dpr;
 int g_count = 0;
 int g_x = -100;
 int g_y = -100;
+//int g_len = 1;
 
-FullScreenImageEditor::FullScreenImageEditor(QPixmap &image, QString imgDir, double dpr, QWidget *parent) :
+FullScreenImageEditor::FullScreenImageEditor(QPixmap &image, QString imgDir, QString iconDir, double dpr, QWidget *parent) :
     QMainWindow(parent),
   ui(new Ui::FullScreenImageEditor)
 {
     g_ImageDir = imgDir;
     g_dpr = dpr;
-    QDBG<<g_ImageDir;
-    QDBG<<g_dpr;
+    g_IconDir = iconDir;
 
     ui->setupUi(this);
     selectedArea = QRect(-10000,-10000,0,0);
@@ -43,14 +44,12 @@ FullScreenImageEditor::FullScreenImageEditor(QPixmap &image, QString imgDir, dou
 
     textEdit = new QTextEdit(this);
     textEdit->setObjectName(QStringLiteral("textEdit"));
-    textEdit->setGeometry(QRect(-100, -100, 70, 31));
+    textEdit->setGeometry(QRect(-100, -100, 30, 30));
     textEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     textEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     textEdit->setVisible(false);
 
-//    setAttribute(Qt::WA_DeleteOnClose);
-//    setMouseTracking(true);
-//    centralWidget()->setMouseTracking(true);
+    connect(textEdit, SIGNAL(textChanged()), this, SLOT(adjustTextEditSize()));
 
     QObjectList list = ui->colorPanel->children();
     QObjectList::Iterator iter = list.begin();
@@ -64,6 +63,8 @@ FullScreenImageEditor::FullScreenImageEditor(QPixmap &image, QString imgDir, dou
 FullScreenImageEditor::~FullScreenImageEditor()
 {
     delete ui;
+    delete textEdit;
+    QDBG<<"delete ui and textEdit...";
 }
 
 void FullScreenImageEditor::paintEvent(QPaintEvent *e)
@@ -104,76 +105,9 @@ void FullScreenImageEditor::paintEvent(QPaintEvent *e)
         moveCmdPanelToProperPosition();
     }
 
-
-
     QPainter p(this);
     p.drawImage(0, 0, actualCanvas);
     QMainWindow::paintEvent(e);
-//    painter.drawLine(QPoint(0,0),QPoint(100,100));
-//        //创建画笔
-//        QPen pen(Qt::green,5,Qt::DotLine,Qt::RoundCap,Qt::RoundJoin);
-//        painter.setPen(pen);
-//        QRectF rectangle(70.0,40.0,80.0,60.0);
-//        int startAngle=30*16;
-//        int spanAngle=120*16;
-//        painter.drawArc(rectangle,startAngle,spanAngle);
-//        pen.setWidth(1);
-//        pen.setStyle(Qt::SolidLine);
-//        painter.setPen(pen);
-//        //绘制一个矩形
-//        painter.drawRect(160,20,50,40);
-//        //创建画刷
-//        QBrush brush(QColor(0,0,255),Qt::Dense4Pattern);
-//        //使用画刷
-//        painter.setBrush(brush);
-//        //绘制画刷
-//        painter.drawEllipse(220,20,50,50);
-//        //设置纹理
-//        brush.setTexture(QPixmap("yafeilinux.png"));
-//        //重新使用画刷
-//        painter.setBrush(brush);
-//        //定义四个点
-//        static const QPointF points[4]={
-//            QPointF(270.0,80.0),
-//            QPointF(290.0,10),
-//            QPointF(350.0,30),
-//            QPointF(390.0,50)
-
-
-//        };
-//        painter.drawPolygon(points,4);
-//        painter.fillRect(QRect(10,100,150,20),QBrush(Qt::darkYellow));
-//        painter.eraseRect(QRect(50,0,50,120));
-//        //线性渐变
-//        QLinearGradient linearGradient(QPointF(40,190),QPointF(70,190));
-
-//        //插入颜色
-//        linearGradient.setColorAt(0,Qt::yellow);
-//        linearGradient.setColorAt(0.5,Qt::red);
-//        linearGradient.setColorAt(1.0,Qt::green);
-
-//        //指定渐变区域以外的区域的扩散方式
-//        linearGradient.setSpread(QGradient::RepeatSpread);
-//        //使用渐变作为画刷
-//        painter.setBrush(linearGradient);
-//        painter.drawRect(10,170,90,40);
-//        //辐射渐变
-//        QRadialGradient radialGradient(QPointF(200,190),50,QPointF(275,200));
-//        radialGradient.setColorAt(0,QColor(255,255,100,150));
-//        radialGradient.setColorAt(1,QColor(0,0,0,50));
-//        painter.setBrush(radialGradient);
-//        painter.drawEllipse(QPointF(200,190),50,50);
-
-//        //锥形渐变
-//        QConicalGradient conicalGradient(QPointF(350,190),60);
-//        conicalGradient.setColorAt(0.2,Qt::cyan);
-//        conicalGradient.setColorAt(0.9,Qt::black);
-//        painter.setBrush(conicalGradient);
-//        painter.drawEllipse(QPointF(350,190),50,50);
-//        //画笔使用线性渐变来绘制直线和文字
-//        painter.setPen(QPen(linearGradient,2));
-//        painter.drawLine(0,280,100,280);
-    //        painter.drawText(150,280,tr("helloQt"));
 }
 
 void FullScreenImageEditor::moveCmdPanelToProperPosition()
@@ -255,7 +189,7 @@ void FullScreenImageEditor::mousePressEvent(QMouseEvent *e)
                     QString str;
                     if(g_count == 1) //first click
                     {
-                        textEdit->setGeometry(QRect(e->pos().x(), e->pos().y(), 70, 31));
+                        textEdit->setGeometry(QRect(e->pos().x(), e->pos().y(), 30, 30));
                         textEdit->setVisible(true);
                         textEdit->setStyleSheet("background-color: rgb(255, 255, 255, 60);");
                         textEdit->setStyleSheet("border: 1px solid red;");
@@ -271,11 +205,7 @@ void FullScreenImageEditor::mousePressEvent(QMouseEvent *e)
                         textStep->setPen(currentPen);
                         textStep->setFirstPoint(g_x, g_y);
                         paintingHistory.doStep(textStep);
-
-                        textEdit->setVisible(false);
-                        textEdit->clearFocus();
-                        textEdit->clear();
-                        g_count = 0;
+                        clearTextEditStatus();
                     }
                     else
                     {
@@ -313,12 +243,7 @@ void FullScreenImageEditor::mousePressEvent(QMouseEvent *e)
             if (!paintingStarted) {         // painting will not be interupted when performing painting
                 setCanvasMode(CanvasMode::IDLE);
                 this->update();
-                textEdit->setVisible(false);
-                textEdit->clear();
-                textEdit->clearFocus();
-                g_count = 0;
-                g_x = -100;
-                g_y = -100;
+                clearTextEditStatus();
             }
         }
     }
@@ -570,9 +495,9 @@ bool FullScreenImageEditor::isInSelectedArea(int x, int y)
 
 void FullScreenImageEditor::myDispose()
 {
-//    this->hide();
-    this->close();
-    //    this->~FullScreenImageEditor();
+    int ret;
+    ret = this->close();
+    QDBG<<"close ok: "<<ret;
 }
 
 void FullScreenImageEditor::setCanvasMode(CanvasMode m)
@@ -606,9 +531,8 @@ CanvasMode FullScreenImageEditor::getCanvasMode()
 
 void FullScreenImageEditor::on_okButton_clicked()
 {
-    QPainter *painter = new QPainter(&screenImage);
-    paintingHistory.paint(painter);
-
+    QPainter painter(&screenImage);
+    paintingHistory.paint(&painter);
     /*
      * for retina screen devicePixelRatio is 2.0
      * non-retina: (50,50) -> (150, 150)  and size: 100 x 100
@@ -620,21 +544,14 @@ void FullScreenImageEditor::on_okButton_clicked()
     {
         QRect newRect = QRect(selectedArea.left()*2, selectedArea.top()*2,
                               selectedArea.width()*2, selectedArea.height()*2);
-
-        /*printf("ok_Btn-selectedArea: %d, %d, %d, %d, size: (%d x %d)\n",
-               selectedArea.left(), selectedArea.top(),
-               selectedArea.right(), selectedArea.bottom(),
-               selectedArea.width(), selectedArea.height());
-        printf("ok_Btn-newRect: %d, %d, %d, %d, size: (%d x %d)\n",
-               newRect.left(), newRect.top(),
-               newRect.right(), newRect.bottom(),
-               newRect.width(), newRect.height());*/
         img = screenImage.copy(newRect);
     }
     else
     {
         img = screenImage.copy(selectedArea);
     }
+
+    QApplication::clipboard()->clear();
 
     QApplication::clipboard()->setImage(img);
     QString defaultName = "Screenshot" + QDateTime::currentDateTime().toString("yyyyMMddhhmmss") + ".png";
@@ -652,8 +569,8 @@ void FullScreenImageEditor::on_saveButton_clicked()
 
     if(!savePath.isEmpty())
     {
-        QPainter *painter = new QPainter(&screenImage);
-        paintingHistory.paint(painter);
+        QPainter painter(&screenImage);
+        paintingHistory.paint(&painter);
         /*
              * for retina screen devicePixelRatio is 2.0
              * non-retina: (50,50) -> (150, 150)  and size: 100 x 100
@@ -665,15 +582,6 @@ void FullScreenImageEditor::on_saveButton_clicked()
         {
             QRect newRect = QRect(selectedArea.left()*2, selectedArea.top()*2,
                                   selectedArea.width()*2, selectedArea.height()*2);
-
-            /*printf("ok_Btn-selectedArea: %d, %d, %d, %d, size: (%d x %d)\n",
-                   selectedArea.left(), selectedArea.top(),
-                   selectedArea.right(), selectedArea.bottom(),
-                   selectedArea.width(), selectedArea.height());
-            printf("ok_Btn-newRect: %d, %d, %d, %d, size: (%d x %d)\n",
-                   newRect.left(), newRect.top(),
-                   newRect.right(), newRect.bottom(),
-                   newRect.width(), newRect.height());*/
             img = screenImage.copy(newRect);
         }
         else
@@ -760,4 +668,41 @@ void FullScreenImageEditor::on_sizeButtonSmall_clicked()
 {
     currentPen.setWidth(PenWidth::PEN_SMALL);
     mosaicSize = MosaicSize::MOSAIC_SMALL;
+}
+
+void FullScreenImageEditor::adjustTextEditSize()
+{
+    int len = textEdit->toPlainText().length();
+    QDBG<<textEdit->width()<<", "<<textEdit->height();
+    //QDBG<<"g_len: "<<g_len<<", len: "<<len;
+
+    int nLine = textEdit->document()->lineCount();
+    QDBG<<nLine<<", "<<textEdit->document()->textWidth();
+
+    if(len > 1)
+    {
+        textEdit->resize(16+8*len, 21+9*nLine);
+        //g_len = len;
+    }
+
+//    QDBG<<textEdit->document()->lineCount();
+//    int pos = textEdit->textCursor().position();
+//    QChar ch = textEdit->document()->characterAt(pos-1);
+
+//    QDBG<<pos<<": "<<ch;
+//    if(nLine > 1)
+//    {
+//        textEdit->resize(textEdit->width(), 30+9*nLine);
+//    }
+}
+
+void FullScreenImageEditor::clearTextEditStatus()
+{
+    textEdit->setVisible(false);
+    textEdit->clearFocus();
+    textEdit->clear();
+    g_x = -100;
+    g_y = -100;
+    g_count = 0;
+    //g_len = 0;
 }

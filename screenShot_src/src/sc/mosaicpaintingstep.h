@@ -11,6 +11,11 @@ public:
     MosaicPaintingStep(QImage *image):
         image(image), mosaic(0), blockSize(10), end(false) {
     }
+    ~MosaicPaintingStep()
+    {
+        QDBG<<"delete mosaic obj...";
+        delete mosaic;
+    }
 
     void paint(QPainter *painter) {
 //        image->pi
@@ -72,6 +77,8 @@ public:
             {
                 mosaic = new QImage(mosaicImg->copy(rect));
             }
+            QDBG<<"delete mosaicImg obj...";
+            delete mosaicImg;
         }
         painter->drawImage(rect.left(), rect.top(), *mosaic);
         if (!end) {

@@ -64,16 +64,19 @@ enum MyCursor {
 
 extern QString g_ImagePath;
 extern QString g_ImageDir;
+extern QString g_IconDir;
 extern double g_dpr;
 extern int g_count;
 extern int g_x;
 extern int g_y;
+//extern int g_len;
+
 class FullScreenImageEditor : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit FullScreenImageEditor(QPixmap &image, QString imgDir, double dpr, QWidget *parent = 0);
+    explicit FullScreenImageEditor(QPixmap &image, QString imgDir, QString iconDir, double dpr, QWidget *parent = 0);
     ~FullScreenImageEditor();
 
 protected:
@@ -115,6 +118,8 @@ private slots:
 
     void on_sizeButtonSmall_clicked();
 
+    void adjustTextEditSize();
+
 private:
     bool isInSelectedArea(int x, int y);
     void changeCursorIfNessesary(int mouseX, int mouseY);
@@ -125,8 +130,8 @@ private:
     QPoint limitPointInSelectedArea(int x, int y);
     void myDispose();
     void updateDrawing(QMouseEvent *);
-
     void setCanvasMode(CanvasMode m);
+    void clearTextEditStatus();
 
     MosaicSize mosaicSize;
     QPen currentPen;

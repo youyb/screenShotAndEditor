@@ -13,14 +13,11 @@ public:
 private:
     QApplicationWrap();
     ~QApplicationWrap();
-    static v8::Persistent<v8::Function> constructor;
+    // static v8::Persistent<v8::Function> constructor;
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
     // Wrapped methods
-    static void ProcessEvents(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void Exec(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void SetStyleSheet(const v8::FunctionCallbackInfo<v8::Value>& args);
-
     static void ScreenCapture(const v8::FunctionCallbackInfo<v8::Value>& args);
 
     // Wrapped object

@@ -24,8 +24,14 @@ public:
     void paint(QPainter *painter) {
         QPen backup = painter->pen();
         painter->setPen(pen);
-        //painter->drawRect(rectangle.left(), rectangle.top(), rectangle.width() - 1, rectangle.height() - 1);
-        painter->drawText(rectangle.left(), rectangle.top(), text);
+//        //painter->drawRect(rectangle.left(), rectangle.top(), rectangle.width() - 1, rectangle.height() - 1);
+//        QDBG<<text;
+        QStringList list = text.split("\n");
+        for(int i=0; i<list.size(); i++)
+        {
+            QDBG<<list[i];
+            painter->drawText(rectangle.left(), rectangle.top()+i*15, list[i]);
+        }
         painter->setPen(backup);
     }
 

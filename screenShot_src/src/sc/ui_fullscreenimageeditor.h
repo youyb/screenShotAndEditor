@@ -19,6 +19,8 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
+#include "qdesktopwidget.h"
+#include "qscreen.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -61,8 +63,12 @@ public:
     void setupUi(QMainWindow *FullScreenImageEditor)
     {
         if (FullScreenImageEditor->objectName().isEmpty())
+        {
             FullScreenImageEditor->setObjectName(QStringLiteral("FullScreenImageEditor"));
-        FullScreenImageEditor->resize(800, 600);
+        }
+        QPixmap screen = QApplication::primaryScreen()->grabWindow(QApplication::desktop()->winId());
+        QDBG<<"set MainWindow size: "<<screen.width()<<", "<<screen.height();
+        FullScreenImageEditor->resize(screen.width(), screen.height());
         FullScreenImageEditor->setMouseTracking(true);
         FullScreenImageEditor->setAutoFillBackground(false);
         centerWidget = new QWidget(FullScreenImageEditor);
@@ -104,7 +110,7 @@ public:
         mosaicButton->setMinimumSize(QSize(30, 30));
         mosaicButton->setMaximumSize(QSize(30, 30));
 		mosaicButton->setToolTip(QStringLiteral("mosaic"));
-		mosaicButton->setStyleSheet("QPushButton{border-image: url(./res/btn_mosaic.png);}");
+		mosaicButton->setStyleSheet("QPushButton{border-image: url("+g_IconDir+"/icon/btn_mosaic.png);}");
         horizontalLayout->addWidget(mosaicButton);
 
         rectButton = new QPushButton(widget_2);
@@ -112,7 +118,7 @@ public:
         rectButton->setMinimumSize(QSize(30, 30));
         rectButton->setMaximumSize(QSize(30, 30));
         rectButton->setToolTip(QStringLiteral("rect"));
-        rectButton->setStyleSheet("QPushButton{border-image: url(./res/btn_rect.png);}");
+        rectButton->setStyleSheet("QPushButton{border-image: url("+g_IconDir+"/icon/btn_rect.png);}");
         horizontalLayout->addWidget(rectButton);
 
         ovalButton = new QPushButton(widget_2);
@@ -120,7 +126,7 @@ public:
         ovalButton->setMinimumSize(QSize(30, 30));
         ovalButton->setMaximumSize(QSize(30, 30));
 		ovalButton->setToolTip(QStringLiteral("oval"));
-        ovalButton->setStyleSheet("QPushButton{border-image: url(./res/btn_oval.png);}");
+        ovalButton->setStyleSheet("QPushButton{border-image: url("+g_IconDir+"/icon/btn_oval.png);}");
         horizontalLayout->addWidget(ovalButton);
 
         arrowButton = new QPushButton(widget_2);
@@ -128,7 +134,7 @@ public:
         arrowButton->setMinimumSize(QSize(30, 30));
         arrowButton->setMaximumSize(QSize(30, 30));
 		arrowButton->setToolTip(QStringLiteral("arrow"));
-        arrowButton->setStyleSheet("QPushButton{border-image: url(./res/btn_arrow.png);}");
+        arrowButton->setStyleSheet("QPushButton{border-image: url("+g_IconDir+"/icon/btn_arrow.png);}");
         horizontalLayout->addWidget(arrowButton);
 
         penButton = new QPushButton(widget_2);
@@ -136,7 +142,7 @@ public:
         penButton->setMinimumSize(QSize(30, 30));
         penButton->setMaximumSize(QSize(30, 30));
 		penButton->setToolTip(QStringLiteral("brush"));
-        penButton->setStyleSheet("QPushButton{border-image: url(./res/btn_brush.png);}");
+        penButton->setStyleSheet("QPushButton{border-image: url("+g_IconDir+"/icon/btn_brush.png);}");
         horizontalLayout->addWidget(penButton);
 
         textButton = new QPushButton(widget_2);
@@ -144,7 +150,7 @@ public:
         textButton->setMinimumSize(QSize(30, 30));
         textButton->setMaximumSize(QSize(30, 30));
         textButton->setToolTip(QStringLiteral("text"));
-        textButton->setStyleSheet("QPushButton{border-image: url(./res/btn_text.png);}");
+        textButton->setStyleSheet("QPushButton{border-image: url("+g_IconDir+"/icon/btn_text.png);}");
         horizontalLayout->addWidget(textButton);
 
         undoButton = new QPushButton(widget_2);
@@ -152,7 +158,7 @@ public:
         undoButton->setMinimumSize(QSize(30, 30));
         undoButton->setMaximumSize(QSize(30, 30));
 		undoButton->setToolTip(QStringLiteral("undo"));
-        undoButton->setStyleSheet("QPushButton{border-image: url(./res/btn_undo.png);}");
+        undoButton->setStyleSheet("QPushButton{border-image: url("+g_IconDir+"/icon/btn_undo.png);}");
         horizontalLayout->addWidget(undoButton);
 
         sizeButtonSmall = new QPushButton(widget_2);
@@ -161,7 +167,7 @@ public:
         sizeButtonSmall->setMaximumSize(QSize(20, 20));
         sizeButtonSmall->setAutoFillBackground(false);
 		sizeButtonSmall->setToolTip(QStringLiteral("small"));
-        sizeButtonSmall->setStyleSheet("QPushButton{border-image: url(./res/btn_small.png);}");
+        sizeButtonSmall->setStyleSheet("QPushButton{border-image: url("+g_IconDir+"/icon/btn_small.png);}");
         horizontalLayout->addWidget(sizeButtonSmall);
 
         sizeButtonNormal = new QPushButton(widget_2);
@@ -170,7 +176,7 @@ public:
         sizeButtonNormal->setMaximumSize(QSize(20, 20));
         sizeButtonNormal->setAutoFillBackground(false);
 		sizeButtonNormal->setToolTip(QStringLiteral("normal"));
-        sizeButtonNormal->setStyleSheet("QPushButton{border-image: url(./res/btn_normal.png);}");
+        sizeButtonNormal->setStyleSheet("QPushButton{border-image: url("+g_IconDir+"/icon/btn_normal.png);}");
         horizontalLayout->addWidget(sizeButtonNormal);
 
         sizeButtonLarge = new QPushButton(widget_2);
@@ -179,7 +185,7 @@ public:
         sizeButtonLarge->setMaximumSize(QSize(20, 20));
         sizeButtonLarge->setAutoFillBackground(false);
 		sizeButtonLarge->setToolTip(QStringLiteral("large"));
-        sizeButtonLarge->setStyleSheet("QPushButton{border-image: url(./res/btn_big.png);}");
+        sizeButtonLarge->setStyleSheet("QPushButton{border-image: url("+g_IconDir+"/icon/btn_big.png);}");
         horizontalLayout->addWidget(sizeButtonLarge);
 
         colorButton = new QPushButton(widget_2);
@@ -208,7 +214,7 @@ public:
         saveButton->setMinimumSize(QSize(30, 30));
         saveButton->setMaximumSize(QSize(30, 30));
 		saveButton->setToolTip(QStringLiteral("save"));
-        saveButton->setStyleSheet("QPushButton{border-image: url(./res/btn_save.png);}");
+        saveButton->setStyleSheet("QPushButton{border-image: url("+g_IconDir+"/icon/btn_save.png);}");
         horizontalLayout->addWidget(saveButton);
 
         okButton = new QPushButton(widget_2);
@@ -216,7 +222,7 @@ public:
         okButton->setMinimumSize(QSize(30, 30));
         okButton->setMaximumSize(QSize(30, 30));
 		okButton->setToolTip(QStringLiteral("ok"));
-        okButton->setStyleSheet("QPushButton{border-image: url(./res/btn_ok.png);}");
+        okButton->setStyleSheet("QPushButton{border-image: url("+g_IconDir+"/icon/btn_ok.png);}");
         okButton->setIconSize(QSize(42, 42));
         horizontalLayout->addWidget(okButton);
 
