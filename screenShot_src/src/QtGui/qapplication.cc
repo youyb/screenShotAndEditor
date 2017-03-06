@@ -12,8 +12,9 @@ int QApplicationWrap::argc_ = 0;
 char** QApplicationWrap::argv_ = NULL;
 
 QApplicationWrap::QApplicationWrap() {
-    QDBG<<"addLibraryPath must be called before QApplication constructor.";
-    QCoreApplication::addLibraryPath("./");
+    //QDBG<<"addLibraryPath must be called before QApplication constructor.";
+    //no need to add this lib path when package, just use @executable_path instead
+    //QCoreApplication::addLibraryPath("./");
     q_ = new QApplication(argc_, argv_);
 }
 
@@ -95,7 +96,7 @@ void QApplicationWrap::ScreenCapture(const FunctionCallbackInfo<Value>& args) {
     }
 
     FullScreenImageEditor scWindow(image, imgDir, iconDir, dpr);
-    // scWindow.showFullScreen();  //this will call memory increates each time
+    // scWindow.showFullScreen();  //this will call memory increates each time, this method not used for OS X
     scWindow.show();  //should resize mainwindow to adapt the input image
 
     q->exec();
