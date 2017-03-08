@@ -672,28 +672,31 @@ void FullScreenImageEditor::on_sizeButtonSmall_clicked()
 
 void FullScreenImageEditor::adjustTextEditSize()
 {
-    int len = textEdit->toPlainText().length();
-    QDBG<<textEdit->width()<<", "<<textEdit->height();
-    //QDBG<<"g_len: "<<g_len<<", len: "<<len;
+    int tHeight, tWidth, temp;
+    QString str = textEdit->toPlainText();
+    QStringList strlist = str.split("\n");
+    QFont tFont = textEdit->currentFont();
+    QFontMetrics fm(tFont);
 
-    int nLine = textEdit->document()->lineCount();
-    QDBG<<nLine<<", "<<textEdit->document()->textWidth();
-
-    if(len > 1)
+    tWidth = 0;
+    for(int i=0; i<strlist.size(); i++)
     {
-        textEdit->resize(16+8*len, 21+9*nLine);
-        //g_len = len;
+        temp = fm.width(strlist.at(i));
+        if(temp > tWidth)
+            tWidth = temp;
     }
-
-//    QDBG<<textEdit->document()->lineCount();
-//    int pos = textEdit->textCursor().position();
-//    QChar ch = textEdit->document()->characterAt(pos-1);
-
-//    QDBG<<pos<<": "<<ch;
-//    if(nLine > 1)
-//    {
-//        textEdit->resize(textEdit->width(), 30+9*nLine);
-//    }
+    tHeight = (fm.height()+2)*(strlist.size());
+    tHeight += 10;
+    tWidth += 30;
+//    QDBG<<selectedArea.left()<<","<<selectedArea.top()<<" --- "<<selectedArea.width()<<","<<selectedArea.height();
+//    QDBG<<textEdit->pos().x()<<","<<textEdit->pos().y()<<" --- "<<tWidth<<","<<tHeight;
+    int maxW = selectedArea.left()+selectedArea.width()-textEdit->pos().x();
+    int maxH = selectedArea.top()+selectedArea.height()-textEdit->pos().y();
+//    QDBG<<maxW<<","<<maxH;
+    tWidth = (tWidth > maxW) ? maxW : tWidth;
+    tHeight = (tHeight > maxH) ? maxH : tHeight;
+//    QDBG<<tWidth<<","<<tHeight;
+    textEdit->resize(tWidth, tHeight);
 }
 
 void FullScreenImageEditor::clearTextEditStatus()
